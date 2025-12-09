@@ -1,0 +1,129 @@
+body {
+    background: linear-gradient(135deg, #ebf5fc 0%, #f6fafd 100%);
+    min-height: 100vh;
+}
+
+.card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 32px rgba(120, 140, 180, 0.13);
+    padding: 34px 30px 24px 30px;
+    margin: 42px auto 0;
+    max-width: 470px;
+    border: 1.5px solid #e6eef6;
+    position: relative;
+}
+
+h1{
+    text-align: center;
+}
+
+.card h1, .card h3, label {
+    color: #2467b0;
+    font-weight: 600;
+    letter-spacing: 0.004em;
+}
+
+
+.card input[type="text"],
+.card input[type="date"],
+.card input[type="number"],
+.card input[type="time"],
+.card select,
+.card textarea {
+    width: 100%;
+    border-radius: 7px;
+    border: 1.5px solid #c7dbef;
+    background: #f6fafd;
+    padding: 10px 10px;
+    font-size: 1.09em;
+    margin-bottom: 18px;
+    color: #284a61;
+    transition: border-color 0.16s;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.card input:focus, .card select:focus, .card textarea:focus {
+    border-color: #5acbf5;
+    background: #e9f6fd;
+}
+
+.card input[type="checkbox"] {
+    accent-color: #3dd9ad;
+    transform: scale(1.18);
+    margin-right: 7px;
+    vertical-align: middle;
+}
+
+.card .btn {
+    background: linear-gradient(90deg, #31b89d 0%, #57aefd 100%);
+    color: #fff;
+    border: none;
+    padding: 11px 26px;
+    border-radius: 21px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 3px 16px #92eaff31;
+    transition: background 0.2s, box-shadow 0.25s, transform 0.15s;
+    margin-top: 7px;
+    margin-bottom: 6px;
+}
+.card .btn:hover {
+    background: linear-gradient(90deg, #57aefd 0%, #31b89d 100%);
+    color: #fff;
+    box-shadow: 0 6px 22px #5ceab740;
+    transform: translateY(-1px) scale(1.04);
+}
+
+.alert.alert-danger {
+    background: linear-gradient(90deg, #ffedf0 0%, #ffe9ea 99%);
+    color: #bf2341;
+    border-left: 6px solid #f16482;
+    border-radius: 7px;
+    box-shadow: 0 2px 14px #ffd4df44;
+    padding: 12px 18px 12px 44px;
+    margin-bottom: 27px;
+    font-size: 1.12em;
+    font-weight: 600;
+    position: relative;
+}
+.alert.alert-danger:before {
+    content: "⚠️";
+    position: absolute;
+    left: 14px;
+    top: 10px;
+    font-size: 1.32em;
+}
+
+.card label[for^="id_"] {
+    color: #2778ba;
+}
+
+.card hr {
+    margin: 30px 0 18px 0;
+    border: none;
+    border-bottom: 1.5px solid #e2e2e5;
+}
+
+.card ::selection {
+    background: #bdf1df;
+}
+
+html, body {
+    scroll-behavior: smooth;
+}
+
+.readonly-field {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.text-danger {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}

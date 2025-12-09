@@ -1,0 +1,86 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}Редактировать питомца{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pets.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/pet_form.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<h1>Редактировать данные питомца</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card">
+        <label>Имя:</label>
+        <input type="text" name="name" value="{{ pet.name }}" required>
+
+        <label>Тип животного:</label>
+        <select id="pet_type" name="pet_type" required onchange="toggleCustomPetType()">
+            <option value="dog" {% if pet.pet_type == 'dog' %}selected{% endif %}>🐶 Собака</option>
+            <option value="cat" {% if pet.pet_type == 'cat' %}selected{% endif %}>🐱 Кошка</option>
+            <option value="bird" {% if pet.pet_type == 'bird' %}selected{% endif %}>🐦 Птица</option>
+            <option value="rodent" {% if pet.pet_type == 'rodent' %}selected{% endif %}>🐹 Грызун</option>
+            <option value="rabbit" {% if pet.pet_type == 'rabbit' %}selected{% endif %}>🐰 Кролик</option>
+            <option value="reptile" {% if pet.pet_type == 'reptile' %}selected{% endif %}>🐍 Рептилия</option>
+            <option value="fish" {% if pet.pet_type == 'fish' %}selected{% endif %}>🐠 Рыбка</option>
+            <option value="other" {% if pet.pet_type == 'other' %}selected{% endif %}>❓ Другое (указать)</option>
+        </select>
+
+        <div id="custom_pet_type_group" style="display: {% if pet.pet_type == 'other' %}block{% else %}none{% endif %};">
+            <label>Укажите тип животного:</label>
+            <input type="text" id="custom_pet_type" name="custom_pet_type" 
+                   value="{{ pet.custom_pet_type|default:'' }}"
+                   placeholder="Например: хорёк, черепаха, игуана...">
+        </div>
+
+        <label>Дата рождения:</label>
+        <input type="date" 
+        name="birthday" 
+        value="{{ pet.birthday|date:'Y-m-d' }}" 
+        required 
+        max="{% now 'Y-m-d' %}"
+        oninvalid="this.setCustomValidity('Дата рождения не может быть в будущем')"
+        oninput="this.setCustomValidity('')">
+
+        <label>Вес (в кг):</label>
+        <input type="number" name="weight" step="0.1" value="{{ pet.weight }}">
+
+        <label>Порода:</label>
+        <input type="text" name="breed" value="{{ pet.breed }}">
+
+        <label>Пол:</label>
+        <select name="gender">
+            <option value="" {% if not pet.gender %}selected{% endif %}>Выберите пол</option>
+            <option value="M" {% if pet.gender == 'M' %}selected{% endif %}>Мальчик</option>
+            <option value="F" {% if pet.gender == 'F' %}selected{% endif %}>Девочка</option>
+        </select>
+
+        <label>Особенности:</label>
+        <textarea name="features" placeholder="Укажите аллергии, хронические заболевания и другие особенности питомца" 
+        rows="4" style="width: 100%; word-wrap: break-word; white-space: pre-wrap;">{{ pet.features|default_if_none:"" }}</textarea>
+
+        <label>Фото:</label>
+        {% if pet.photo %}
+            <img src="{{ pet.photo.url }}" alt="Фото питомца" class="pet-photo-preview">
+        {% endif %}
+        <input type="file" name="photo">
+
+        <button type="submit" class="btn">Сохранить</button>
+        <a href="{% url 'pets:detail' pet.id %}" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+
+
+{% endblock %}

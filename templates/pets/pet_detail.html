@@ -1,0 +1,164 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}{{ pet.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pets.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pet-card">
+    <h1>{{ pet.name }}</h1>
+    
+    <div class="pet-info">
+        <p><strong>Тип животного:</strong> {{ pet.display_pet_type }}</p>
+        <p><strong>Возраст:</strong> {{ pet.age }}</p>
+        {% if pet.breed %}
+            <p><strong>Порода:</strong> {{ pet.breed }}</p>
+        {% endif %}
+
+        {% if pet.gender %}
+            <p><strong>Пол:</strong> {{ pet.get_gender_display }}</p>
+        {% endif %}
+
+        {% if pet.weight %}
+            <p><strong>Вес:</strong> {{ pet.weight }} кг</p>
+        {% endif %}
+        
+        {% if pet.features %}
+            <details>
+                <summary><strong>Особенности</strong> (нажмите, чтобы развернуть)</summary>
+                <div class="pet-features">
+                    <div class="features-content">{{ pet.features }}</div>
+                </div>
+            </details>
+        {% endif %}
+    </div>
+
+    {% if pet.photo %}
+        <img src="{{ pet.photo.url }}" alt="{{ pet.name }}" class="pet-photo">
+    {% else %}
+        <img src="{% static 'img/pet_placeholder.jpg' %}" alt="Питомец" class="pet-photo">
+    {% endif %}
+</div>
+
+<div class="tabs">
+    <a href="?tab=info" class="{% if tab == 'info' %}active{% endif %}">Информация</a>
+    <a href="?tab=calendar" class="{% if tab == 'calendar' %}active{% endif %}">Календарь</a>
+</div>
+
+<div class="tab-content">
+    {% if tab == 'info' %}
+        <p><strong>День рождения:</strong> {{ pet.birthday|date:"d.m.Y" }}</p>
+        {% if birthday_today %}
+            <p><strong>🎉 Сегодня день рождения у {{ pet.name }}!</strong></p>
+        {% elif birthday_soon %}
+            <p><strong>⏳ Через {{ birthday_soon }} дней у {{ pet.name }} День Рождения!</strong></p>
+        {% endif %}
+
+        <p><strong>Владельцы:</strong></p>
+        <ul>
+            {% for owner in pet.owners.all %}
+                <li>
+                    {{ owner.email }}
+                    {% if is_creator and owner != user and pet.owners.count > 1 %}
+                        <form method="post" action="{% url 'pets:remove_owner' pet.id owner.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-small btn-danger" 
+                                    onclick="return confirm('Удалить {{ owner.email }} из владельцев?')">
+                                ✕ Удалить
+                            </button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="action-buttons">
+            {% if is_creator %}
+                <a href="{% url 'pets:edit' pet.id %}" class="btn">Редактировать</a>
+                <a href="{% url 'invite_owner' pet.id %}" class="btn">Пригласить владельца</a>
+            {% endif %}
+        </div>
+
+    {% elif tab == 'calendar' %}
+
+        <div id="calendar"></div>
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <div id="eventModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>События на <span id="eventDate"></span></h2>
+                <div id="eventList"></div>
+            </div>
+        </div>
+
+        <p style="margin-top: 20px;">
+            <a href="{% url 'calendarapp:add' pet.id %}" class="btn">Добавить событие</a>
+        </p>
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.4/index.global.min.js"></script>
+    
+    <script>
+        var calendarEvents = [
+            {% for event in events %}
+            {
+                title: '{{ event.title }}{% if event.is_done %} ✅{% endif %}',
+                start: '{{ event.date|date:"Y-m-d" }}',
+                end: '{{ event.date|date:"Y-m-d" }}',
+                className: '{{ event.is_done|yesno:"done,not-done" }}',
+                backgroundColor: '{{ event.is_done|yesno:"rgb(128, 238, 114),#ffffff" }}',
+                textColor: '{{ event.is_done|yesno:"#000000,#000000" }}',
+                borderColor: '{{ event.is_done|yesno:"rgb(100, 200, 100),#ddd" }}',
+                extendedProps: {
+                    id: '{{ event.id }}',
+                    time: '{{ event.time|default:"" }}',
+                    note: `{{ event.note|default_if_none:"" }}`,
+                    is_done: {{ event.is_done|yesno:"true,false" }},
+                    remind: `{% if event.reminder %}{{ event.reminder.remind_at|time:"H:i" }}{% endif %}`,
+                    is_yearly: {{ event.is_yearly|yesno:"true,false" }},
+                    edit_url: '{% url 'calendarapp:edit' event.id %}',
+                    done_url: '{% url 'calendarapp:done' event.id %}',
+                    delete_url: '{% url 'calendarapp:delete' event.id %}'
+                }
+            },
+            {% endfor %}
+        ];
+        var csrfToken = "{{ csrf_token }}";
+    </script>
+    <script src="{% static 'js/pet_calendar.js' %}"></script>
+    
+    <style>
+        .fc-event, 
+        .fc-event-dot,
+        .fc-daygrid-event {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border-color: #ddd !important;
+        }
+        
+        .fc-event.done, 
+        .fc-event-dot.done,
+        .fc-daygrid-event.done {
+            background-color: rgb(128, 238, 114) !important;
+            color: #000000 !important;
+            border-color: rgb(100, 200, 100) !important;
+        }
+        
+        .fc-h-event {
+            background-color: inherit !important;
+            border-color: inherit !important;
+        }
+        
+        .fc-daygrid-event-dot {
+            border-color: inherit !important;
+        }
+    </style>
+    
+    {% endif %}
+</div>
+{% endblock %}

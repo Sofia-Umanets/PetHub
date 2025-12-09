@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+
+{% load static %} 
+
+{% block title %}Ссылка для приглашения{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="invite-wrapper">
+    <div class="invite-header">
+        <h2>Приглашение к {{ pet.name }}</h2>
+    </div>
+    <div class="invite-content">
+        <p>Отправь эту ссылку со-владельцу:</p>
+        <pre class="invite-link">{{ invite_link }}</pre>
+        <a href="{% url 'profile' %}" class="profile-btn">Назад</a>
+    </div>
+</div>
+{% endblock %}

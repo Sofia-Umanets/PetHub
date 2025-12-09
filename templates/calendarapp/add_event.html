@@ -1,0 +1,89 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}Новое событие{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/event_form.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<h1>Новое событие для {{ pet.name }}</h1>
+
+{% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card">
+        <label>Название:</label><br>
+        <input type="text" name="title" required value="{{ form_data.title|default_if_none:'' }}"><br><br>
+
+        <label>Тип события:</label><br>
+        <select name="event_type" required>
+            {% for value, label in event_type_choices %}
+            <option value="{{ value }}"
+                {% if form_data.event_type == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Дата:</label><br>
+        <input type="date" name="date" required value="{{ form_data.date|default_if_none:'' }}"><br><br>
+
+        <label>
+            <input type="checkbox" name="is_yearly" id="id_is_yearly"
+                   {% if form_data.is_yearly %}checked{% endif %}>
+            Ежегодное событие
+        </label><br><br>
+
+        <label>Время:</label><br>
+        <input type="time" name="time" value="{{ form_data.time|default_if_none:'' }}"><br><br>
+
+        <label>Длительность (минут):</label><br>
+        <input type="number" name="duration" value="{{ form_data.duration|default_if_none:'' }}" min="0"><br><br>
+
+        <label>Заметка:</label><br>
+        <textarea name="note">{{ form_data.note|default_if_none:'' }}</textarea><br><br>
+
+        <hr>
+        <h3>Напоминание</h3>
+
+        <label>
+            <input type="checkbox" name="repeat" id="id_repeat"
+                   {% if form_data.repeat %}checked{% endif %}>
+            Повторять
+        </label><br><br>
+
+        <div id="repeat-fields" style="display: none;">
+            <label>Дни недели:</label><br>
+            <select name="repeat_days" multiple>
+                <option value="0">Пн</option>
+                <option value="1">Вт</option>
+                <option value="2">Ср</option>
+                <option value="3">Чт</option>
+                <option value="4">Пт</option>
+                <option value="5">Сб</option>
+                <option value="6">Вс</option>
+              </select><br><br>
+
+            <label>Повторять каждые N недель:</label><br>
+            <input type="number" name="repeat_every" value="{{ form_data.repeat_every|default:1 }}" min="1"><br><br>
+        </div>
+
+        <div id="one-time-fields">
+            <label>Дата напоминания:</label><br>
+            <input type="date" name="remind_date" value="{{ form_data.remind_date|default_if_none:'' }}"><br><br>
+        </div>
+
+        <label>Время напоминания:</label><br>
+        <input type="time" name="remind_at" value="{{ form_data.remind_at|default_if_none:'' }}"><br><br>
+
+        <button type="submit" class="btn">Сохранить</button>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends '_base.html' %}
+
+{% block title %}Приглашение не найдено{% endblock %}
+
+{% block content %}
+  <h2>Приглашение не найдено или недействительно</h2>
+  <p>Возможно, вы перешли по устаревшей или ошибочной ссылке приглашения.</p>
+  <a href="{% url 'account_signup' %}">Зарегистрироваться</a> /
+  <a href="{% url 'account_login' %}">Войти</a>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends '_base.html' %}
+
+{% load static %} 
+
+{% block title %}Дашборд{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard">
+    <h1>Главная</h1>
+
+    <div class="dashboard-sections-container">
+        <!-- Блок ближайших событий -->
+        <div class="dashboard-section">
+            <h2>Ближайшие события</h2>
+            <div class="dashboard-section-content">
+                <ul>
+                    {% for event in events %}
+                        <li>{{ event.date }} — {{ event.title }} ({{ event.pet.name }})</li>
+                    {% empty %}
+                        <li>Нет событий</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- Блок дней рождений -->
+        <div class="dashboard-section">
+            <h2>Скоро день рождения</h2>
+            <div class="dashboard-section-content">
+                <ul>
+                    {% for pet, days in birthdays %}
+                        <li>{{ pet.name }} — через {{ days }} дн.</li>
+                    {% empty %}
+                        <li>Ближайших нет</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("Notif debug:",
+            document.getElementById("notificationButton"),
+            document.getElementById("notifDropdown"));
+    });
+    </script>
+{% endblock %}

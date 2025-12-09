@@ -1,0 +1,13 @@
+django 
+django-allauth
+psycopg2-binary
+pillow
+celery
+redis
+markdown
+bleach
+phonenumbers
+django-extensions
+graphviz
+pydotplus
+django-redis==4.12.1

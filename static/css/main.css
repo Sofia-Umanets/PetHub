@@ -1,0 +1,188 @@
+/* main.css */
+
+body {
+    background-image: url('/static/img/fon8.jpg');
+    background-size: cover;
+    background-position: 80px 40%;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    position: relative;
+    min-height: 150vh;
+    margin: 0;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+}
+
+@media (max-width: 768px) {
+    body {
+        background-image: url('/static/img/fon8.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        position: relative;
+        min-height: 100vh;
+        margin: 0;
+    }
+    
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5); 
+        z-index: -1;
+    }
+
+}
+
+.dashboard {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+    position: relative;
+}
+
+.dashboard h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 50px;
+    font-size: 2.5em;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.dashboard-sections-container {
+    display: flex;
+    gap: 30px;
+    justify-content: space-between;
+    align-items: stretch;
+}
+
+.dashboard-section {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: 380px; 
+    overflow: hidden; 
+}
+
+.dashboard-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-section h2 {
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    flex-shrink: 0;
+}
+
+.dashboard-section-content {
+    flex-grow: 1;
+    overflow-y: auto; 
+    padding-right: 8px; 
+}
+
+.dashboard-section ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dashboard-section ul li {
+    padding: 12px 0;
+    border-bottom: 1px solid #eaeaea;
+    color: #666;
+}
+
+.dashboard-section ul li:last-child {
+    border-bottom: none;
+}
+
+.dashboard-section ul li:hover {
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+/* Стилизация скроллбара */
+.dashboard-section-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dashboard-section-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.dashboard-section-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.dashboard-section-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@media (max-width: 1200px) {
+    .dashboard-sections-container {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .dashboard-section {
+        flex: 1 1 calc(50% - 20px);
+        min-width: 300px;
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 0 15px;
+    }
+    
+    .dashboard-sections-container {
+        flex-direction: column;
+    }
+    
+    .dashboard-section {
+        flex: 1 1 100%;
+        height: 300px;
+    }
+    
+    .dashboard-section h2 {
+        font-size: 1.3em;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard h1 {
+        font-size: 2em;
+        margin-bottom: 30px;
+    }
+    
+    .dashboard-section {
+        padding: 20px;
+        height: 250px;
+    }
+}

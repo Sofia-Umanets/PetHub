@@ -1,0 +1,23 @@
+FROM postgres:15
+
+# Установка зависимостей
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    postgresql-server-dev-15 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Клонирование и установка pg_cron
+RUN git clone https://github.com/citusdata/pg_cron.git \
+    && cd pg_cron \
+    && make \
+    && make install \
+    && cd .. \
+    && rm -rf pg_cron
+
+# Копирование скриптов инициализации
+COPY ./calendarapp/sql/yearly_events_trigger.sql /docker-entrypoint-initdb.d/
+COPY ./calendarapp/sql/pg_cron_init.sql /docker-entrypoint-initdb.d/
+
+# Установка прав
+RUN chmod 644 /docker-entrypoint-initdb.d/*

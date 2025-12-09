@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}Мои питомцы{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pets.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="pets-container">
+    <h1>Мои питомцы</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="pet-list">
+        {% if pets %}
+            {% for pet in pets %}
+                <div class="pet-card">
+                    <h2>{{ pet.name }}</h2>
+                    <p class="pet-type"><strong>Тип:</strong> {{ pet.display_pet_type }}</p>
+                    
+                    <div class="pet-photo-container">
+                        {% if pet.photo %}
+                            <img src="{{ pet.photo.url }}" alt="{{ pet.name }}" class="pet-photo">
+                        {% else %}
+                            <img src="{% static 'img/pet_placeholder.jpg' %}" alt="Питомец" class="pet-photo">
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pet-info">
+                        <p><strong>Порода:</strong> {{ pet.breed|default:"не указана" }}</p>
+                        <p><strong>Дата рождения:</strong> {{ pet.birthday|date:"d.m.Y" }}</p>
+                        <p><strong>Возраст:</strong> {{ pet.age }}</p>
+                    </div>
+                    
+                    <div class="pet-actions">
+                        <a href="{% url 'pets:detail' pet.id %}" class="pet-link">Детали</a>
+                    
+                        {% if pet.owners.first == user %}
+                            <form method="post" action="{% url 'pets:delete' pet.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger delete-btn" 
+                                        onclick="return confirm('Вы уверены, что хотите удалить аккаунт питомца {{ pet.name }} и все данные связанные с ним?')">
+                                    Удалить аккаунт питомца
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-pets">У тебя пока нет питомцев.</p>
+        {% endif %}
+    </div>
+
+    <div style="text-align: center;">
+        <a href="{% url 'pets:add' %}" class="add-pet-btn">Добавить питомца</a>
+    </div>
+</div>
+{% endblock %}

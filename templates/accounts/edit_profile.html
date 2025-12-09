@@ -1,0 +1,109 @@
+{% extends '_base.html' %}
+{% load static %}
+
+{% block title %}Редактировать профиль{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile_edit.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="profile-edit-container">
+    <div class="edit-profile-card">
+        <h1 class="edit-profile-title">Редактировать профиль</h1>
+
+        <form method="post" enctype="multipart/form-data" class="edit-profile-form">
+            {% csrf_token %}
+
+            <!-- Аватар -->
+            <div class="avatar-section">
+                <div class="avatar-preview">
+                    <img src="{{ user.get_avatar }}" alt="Текущий аватар" class="avatar-image" id="avatarPreview">
+                </div>
+                <label for="id_avatar" class="avatar-upload-btn">
+                    <i class="fas fa-camera"></i> Изменить фото
+                    <input type="file" name="avatar" id="id_avatar" accept="image/*">
+                </label>
+                {% if form.avatar.errors %}
+                    <div class="form-error">{{ form.avatar.errors }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Основная информация -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-user"></i> Основная информация</h2>
+                
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">Имя пользователя</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="form-error">{{ form.username.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="form-error">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Контактная информация -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-phone"></i> Контактная информация</h2>
+                
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">Телефон</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div class="form-error">{{ form.phone.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.birth_date.id_for_label }}">Дата рождения</label>
+                    <input type="date" 
+                           name="{{ form.birth_date.name }}" 
+                           id="{{ form.birth_date.id_for_label }}" 
+                           value="{{ form.birth_date.value|date:'Y-m-d' }}" 
+                           class="form-control">
+                    {% if form.birth_date.errors %}
+                        <div class="form-error">{{ form.birth_date.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- О себе -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-info-circle"></i> О себе</h2>
+                
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}">Биография</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                        <div class="form-error">{{ form.bio.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Сохранить изменения
+                </button>
+                <a href="{% url 'profile' %}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

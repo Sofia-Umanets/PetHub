@@ -1,0 +1,67 @@
+version: '3.9'
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    environment:
+      - POSTGRES_DB=dogappdb
+      - POSTGRES_USER=doguser
+      - POSTGRES_PASSWORD=dogpass
+      # Важные параметры для pg_cron
+      - POSTGRES_INITDB_ARGS=--data-checksums
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./path/to/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: 
+      - -c
+      - shared_preload_libraries=pg_cron
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    command: >
+      ./wait-for-it.sh db:5432 -- 
+      bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build: .
+    command: >
+      ./wait-for-it.sh db:5432 -- 
+      bash -c "celery -A config worker -l info"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    build: .
+    command: >
+      ./wait-for-it.sh db:5432 -- 
+      bash -c "celery -A config beat -l info"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  pg_data:

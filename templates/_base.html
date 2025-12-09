@@ -1,0 +1,222 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Профиль{% endblock %}</title>
+        
+        <!-- Запрет горизонтальной прокрутки и стили для уведомлений -->
+        <style>
+            html, body {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            /* Убедитесь, что все контейнеры не выходят за рамки */
+            .app-layout, 
+            .app-content,
+            .tab-content,
+            .pet-card,
+            .card,
+            form,
+            .modal-content {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Изображения не должны выходить за пределы контейнера */
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+
+            /* Обработка длинного текста */
+            * {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+            }
+            
+            /* СТИЛИ ДЛЯ ВЫПАДАЮЩЕГО МЕНЮ УВЕДОМЛЕНИЙ - С ВЫСОКИМ ПРИОРИТЕТОМ */
+            .app-notification-wrapper {
+                position: relative !important;
+            }
+            
+            .app-notification-icon {
+                cursor: pointer !important;
+            }
+            
+            .app-notification-dropdown {
+                position: absolute !important;
+                background: white !important;
+                border: none !important;
+                width: 260px !important;
+                max-height: 400px !important;
+                overflow-y: auto !important;
+                z-index: 9999 !important; /* Очень высокий z-index */
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+                border-radius: 8px !important;
+                top: 45px !important;
+                right: 0 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: opacity 0.3s ease, visibility 0.3s ease !important;
+            }
+            
+            .app-notification-dropdown.show {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+            
+            /* Треугольник над выпадающим меню */
+            .app-notification-dropdown:before {
+                content: '' !important;
+                position: absolute !important;
+                top: -8px !important;
+                right: 18px !important;
+                width: 0 !important;
+                height: 0 !important;
+                border-left: 8px solid transparent !important;
+                border-right: 8px solid transparent !important;
+                border-bottom: 8px solid white !important;
+            }
+            
+            .app-notif-item {
+                padding: 12px 15px !important;
+                border-bottom: 1px solid #eee !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                background-color: white !important;
+            }
+            
+            .app-notif-message {
+                color: #333 !important;
+            }
+            
+            /* Фиксация выпадающего меню на мобильных устройствах */
+            @media (max-width: 768px) {
+                .app-notification-dropdown {
+                    right: 0 !important;
+                    left: auto !important;
+                    width: 260px !important;
+                    max-width: 85vw !important;
+                }
+            }
+        </style>
+        
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        {% block extra_css %}{% endblock %}
+    </head>
+    <body>
+        <div class="app-layout">
+            <nav id="mainSidebar" class="app-sidebar">
+                <!-- ... ваша шапка ... -->
+                <div class="app-logo">
+                    <img src="{% static 'img/logopet.jpeg' %}" alt="PetHub Logo" class="app-logo-img">
+                    <span>PetHub</span>
+                </div>
+        
+                <div class="app-actions-group">
+                    {% if user.is_authenticated %}
+                      <div class="app-notification-wrapper">
+                        <div class="app-notification-icon" id="notificationButton">
+                          🔔
+                          {% if notification_count > 0 %}
+                            <span class="app-notif-badge">{{ notification_count }}</span>
+                          {% endif %}
+                        </div>
+                        <div class="app-notification-dropdown" id="notifDropdown">
+                          {% with unread=notifications|dictsortreversed:"created_at"|length %}
+                            {% if notification_count > 0 %}
+                              {% for note in notifications %}
+                                {% if not note.is_read %}
+                                  <div class="app-notif-item" data-id="{{ note.id }}">
+                                    <span class="app-notif-message">{{ note.message }}</span>
+                                    <form method="post" action="{% url 'mark_notification_read' note.id %}">
+                                      {% csrf_token %}
+                                      <button type="submit" title="Прочитано" class="app-notif-btn">✓</button>
+                                    </form>
+                                  </div>
+                                {% endif %}
+                              {% endfor %}
+                            {% else %}
+                              <div class="app-notif-item app-notif-empty">Нет новых уведомлений</div>
+                            {% endif %}
+                          {% endwith %}
+                        </div>
+                      </div>
+                    {% endif %}
+                    <button class="app-mobile-toggle" onclick="toggleMobileMenu()">☰</button>
+                  </div>
+        
+                <ul class="app-nav">
+                    <li class="app-nav-item"><a href="{% url 'dashboard' %}" class="app-nav-link">Главная</a></li>
+                    <li class="app-nav-item"><a href="{% url 'profile' %}" class="app-nav-link">Профиль</a></li>
+                    <li class="app-nav-item"><a href="{% url 'pets:list' %}" class="app-nav-link">Мои питомцы</a></li>
+                    <li class="app-nav-item"><a href="{% url 'account_logout' %}" class="app-nav-link">Выйти</a></li>
+                </ul>
+            </nav>
+            <main class="app-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Кнопка уведомлений
+            const notificationButton = document.getElementById("notificationButton");
+            const notificationDropdown = document.getElementById("notifDropdown");
+            
+            if (notificationButton && notificationDropdown) {
+                notificationButton.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    notificationDropdown.classList.toggle("show");
+                });
+                
+                // Закрытие при клике вне меню
+                document.addEventListener("click", function(e) {
+                    if (!e.target.closest(".app-notification-wrapper")) {
+                        notificationDropdown.classList.remove("show");
+                    }
+                });
+            }
+            
+            // Мобильное меню
+            document.querySelectorAll(".app-nav-link").forEach(link => {
+                link.addEventListener("click", () => {
+                    if (window.innerWidth <= 768) {
+                        document.getElementById("mainSidebar").classList.remove("expanded");
+                    }
+                });
+            });
+            
+            window.addEventListener("resize", () => {
+                if (window.innerWidth > 768) {
+                    document.getElementById("mainSidebar").classList.remove("expanded");
+                }
+            });
+        });
+        
+        // Функция для мобильного меню
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById("mainSidebar");
+            sidebar.classList.toggle("expanded");
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

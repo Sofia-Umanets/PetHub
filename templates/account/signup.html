@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="{% static 'css/log_reg.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <video autoplay muted loop id="loginVideoBg">
+        <source src="{% static 'video/video5339432372347632335.mp4' %}" type="video/mp4">
+    </video>
+    <main class="login-main">
+        <div class="login-card">
+            <h1>Регистрация</h1>
+
+            <form method="POST" action="{% url 'account_signup' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username">
+                        <i class="fas fa-user"></i> Имя пользователя
+                    </label>
+                    <input type="text" 
+                           name="username" 
+                           id="id_username" 
+                           required 
+                           value="{{ form.username.value|default_if_none:'' }}"
+                           placeholder="Введите имя пользователя">
+                    {% if form.username.errors %}
+                        <div class="error-message">
+                            {{ form.username.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input type="email" 
+                           name="email" 
+                           id="id_email" 
+                           required 
+                           value="{{ form.email.value|default_if_none:'' }}"
+                           placeholder="Введите email">
+                    {% if form.email.errors %}
+                        <div class="error-message">
+                            {{ form.email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1">
+                        <i class="fas fa-lock"></i> Пароль
+                    </label>
+                    <input type="password" 
+                           name="password1" 
+                           id="id_password1" 
+                           required
+                           placeholder="Введите пароль">
+                    {% if form.password1.errors %}
+                        <div class="error-message">
+                            {{ form.password1.errors }}
+                        </div>
+                    {% endif %}
+                    <small class="password-help">
+                        Пароль должен содержать минимум 8 символов и не должен быть слишком простым
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2">
+                        <i class="fas fa-lock"></i> Подтверждение пароля
+                    </label>
+                    <input type="password" 
+                           name="password2" 
+                           id="id_password2" 
+                           required
+                           placeholder="Повторите пароль">
+                    {% if form.password2.errors %}
+                        <div class="error-message">
+                            {{ form.password2.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_avatar">
+                        <i class="fas fa-image"></i> Аватар (необязательно)
+                    </label>
+                    <input type="file" 
+                           name="avatar" 
+                           id="id_avatar" 
+                           accept="image/*"
+                           class="file-input">
+                    {% if form.avatar.errors %}
+                        <div class="error-message">
+                            {{ form.avatar.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="form-error">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+            </form>
+
+            <p class="switch-auth">
+                Уже есть аккаунт? 
+                <a href="{% url 'account_login' %}">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </a>
+            </p>
+        </div>
+    </main>
+</body>
+</html>

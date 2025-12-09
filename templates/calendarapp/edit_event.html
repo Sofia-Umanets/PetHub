@@ -1,0 +1,129 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block title %}Редактировать событие{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/calendar.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/event_form.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<h1>Редактировать событие для {{ event.pet.name }}</h1>
+{% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="card">
+        {% if is_birthday %}
+            <input type="hidden" name="title" value="{{ event.title }}">
+            <input type="hidden" name="event_type" value="birthday">
+            <input type="hidden" name="is_yearly" value="on">
+
+            <label>Название:</label><br>
+            <input type="text" value="{{ event.title }}" readonly class="readonly-field"><br><br>
+
+            <label>Тип события:</label><br>
+            <input type="text" value="День рождения" readonly class="readonly-field"><br><br>
+
+            <label>Дата:</label><br>
+            <input type="date" name="date" value="{{ event.date|date:'Y-m-d' }}" readonly class="readonly-field">
+            <p class="text-danger">
+                Дату дня рождения можно изменить только в 
+                <a href="{% url 'pets:edit' event.pet.id %}">информации о питомце</a>
+            </p><br>
+
+            <label>
+                <input type="checkbox" name="apply_to_all" id="id_apply_to_all"
+                    {% if form_data and form_data.apply_to_all %}checked{% endif %}>
+                Применить изменения ко всем событиям дня рождения
+            </label><br><br>
+        {% else %}
+            <label for="id_title">Название:</label><br>
+            <input type="text" name="title" id="id_title" required
+                value="{% if form_data %}{{ form_data.title }}{% else %}{{ event.title }}{% endif %}"><br><br>
+
+            <label for="id_event_type">Тип события:</label><br>
+            <select name="event_type" id="id_event_type" required>
+                {% for value, label in event_type_choices %}
+                    <option value="{{ value }}"
+                        {% if form_data %}
+                            {% if form_data.event_type == value %}selected{% endif %}
+                        {% else %}
+                            {% if event.event_type == value %}selected{% endif %}
+                        {% endif %}
+                    >{{ label }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="id_date">Дата:</label><br>
+            <input type="date" name="date" id="id_date" required
+                value="{% if form_data %}{{ form_data.date }}{% else %}{{ event.date|date:'Y-m-d' }}{% endif %}"><br><br>
+
+            <label>
+                <input type="checkbox" name="is_yearly" id="id_is_yearly"
+                    {% if form_data and form_data.is_yearly %}checked{% elif not form_data and event.is_yearly %}checked{% endif %}>
+                Ежегодное событие
+            </label><br><br>
+
+            <label>
+                <input type="checkbox" name="apply_to_all" id="id_apply_to_all"
+                    {% if form_data and form_data.apply_to_all %}checked{% endif %}>
+                Применить изменения ко всем событиям
+            </label><br><br>
+        {% endif %}
+
+        <label for="id_time">Время:</label><br>
+        <input type="time" name="time" id="id_time"
+            value="{% if form_data and form_data.time %}{{ form_data.time }}{% elif event.time %}{{ event.time|time:'H:i' }}{% endif %}"><br><br>
+
+        <label for="id_duration">Длительность (минут):</label><br>
+        <input type="number" name="duration" id="id_duration"
+            value="{% if form_data and form_data.duration %}{{ form_data.duration }}{% else %}{{ event.duration_minutes|default_if_none:'' }}{% endif %}" min="0"><br><br>
+
+        <label for="id_note">Заметка:</label><br>
+        <textarea name="note" id="id_note">{% if form_data and form_data.note %}{{ form_data.note }}{% else %}{{ event.note }}{% endif %}</textarea><br><br>
+
+        <hr>
+        <h3>Напоминание</h3>
+        <label for="id_repeat">
+            <input type="checkbox" name="repeat" id="id_repeat"
+                {% if form_data.repeat %}checked{% endif %}>
+            Повторять
+        </label><br><br>
+
+        <div id="repeat-fields" style="display: none;">
+            <label>Дни недели:</label><br>
+            <select name="repeat_days" id="id_repeat_days" multiple>
+                {% for i in "0123456"|make_list %}
+                    <option value="{{ i }}" {% if i|stringformat:"s" in repeat_days_selected %}selected{% endif %}>
+                        {% cycle "Пн" "Вт" "Ср" "Чт" "Пт" "Сб" "Вс" from "Пн" "Вт" "Ср" "Чт" "Пт" "Сб" "Вс" as days_cycle %}
+                        {{ days_cycle }}
+                    </option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="id_repeat_every">Повторять каждые N недель:</label><br>
+            <input type="number" name="repeat_every" id="id_repeat_every"
+                value="{{ form_data.repeat_every|default:'1' }}" min="1"><br><br>
+        </div>
+
+        <div id="one-time-fields" style="display: none;">
+            <label for="id_remind_date">Дата напоминания:</label><br>
+            <input type="date" name="remind_date" id="id_remind_date"
+                value="{{ form_data.remind_date }}"><br><br>
+        </div>
+
+        <label for="id_remind_at">Время напоминания:</label><br>
+        <input type="time" name="remind_at" id="id_remind_at"
+            value="{{ form_data.remind_at }}"><br><br>
+
+        <button type="submit" class="btn">Сохранить</button>
+    </div>
+</form>
+
+{% endblock %}
