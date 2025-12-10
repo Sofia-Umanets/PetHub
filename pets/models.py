@@ -50,6 +50,13 @@ class Pet(models.Model):
         help_text='Аллергии, хронические заболевания и другие особенности питомца'
     )
 
+    creator = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='created_pets',
+        null=False
+    )
+
     def __str__(self):
         return self.name
     
@@ -83,9 +90,7 @@ class Pet(models.Model):
             return f"{years} г. {months} мес."
     
     def is_owner(self, user):
-        """Проверяет, является ли пользователь владельцем питомца"""
         return self.owners.filter(id=user.id).exists()
     
     def can_edit(self, user):
-        """Проверяет, может ли пользователь редактировать питомца"""
         return self.is_owner(user)

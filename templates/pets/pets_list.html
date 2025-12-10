@@ -41,7 +41,7 @@
                     <div class="pet-actions">
                         <a href="{% url 'pets:detail' pet.id %}" class="pet-link">Детали</a>
                     
-                        {% if pet.owners.first == user %}
+                        {% if pet.creator == user %}
                             <form method="post" action="{% url 'pets:delete' pet.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger delete-btn" 

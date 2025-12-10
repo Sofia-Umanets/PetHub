@@ -6,6 +6,36 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<style>
+    .invite-header h2 {
+        border: 2px solid #ddd;
+        padding: 10px 15px;
+        border-radius: 8px;
+        display: inline-block;
+        background-color: white;
+    }
+    
+    .buttons-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .copy-btn {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 15px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .copy-btn:hover {
+        background: #45a049;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -15,8 +45,22 @@
     </div>
     <div class="invite-content">
         <p>Отправь эту ссылку со-владельцу:</p>
-        <pre class="invite-link">{{ invite_link }}</pre>
-        <a href="{% url 'profile' %}" class="profile-btn">Назад</a>
+        <pre class="invite-link" id="inviteLink">{{ invite_link }}</pre>
+        <div class="buttons-container">
+            <a href="{% url 'profile' %}" class="profile-btn">Назад</a>
+            <button class="copy-btn" onclick="copyInviteLink()">Копировать</button>
+        </div>
     </div>
 </div>
+
+<script>
+    function copyInviteLink() {
+        const inviteLink = document.getElementById('inviteLink').textContent;
+        navigator.clipboard.writeText(inviteLink).then(() => {
+            alert('Ссылка скопирована!');
+        }).catch(err => {
+            console.error('Не удалось скопировать: ', err);
+        });
+    }
+</script>
 {% endblock %}

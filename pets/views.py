@@ -29,6 +29,7 @@ def pet_add(request):
         gender = request.POST.get('gender') or None
         photo = request.FILES.get('photo')
         features = request.POST.get('features') or ''
+        creator=request.user 
 
         # Валидация обязательных полей
         if not name:
@@ -220,14 +221,7 @@ def pet_delete(request, pet_id):
     return render(request, 'pets/pet_delete.html', {'pet': pet})
 
 def is_pet_creator(user, pet):
-    """
-    Проверяет, является ли пользователь создателем питомца.
-    Создателем считается первый владелец, добавленный к питомцу.
-    """
-
-    if pet.owners.exists():
-        return pet.owners.first() == user
-    return False
+    return pet.creator == user
 
 def create_or_update_birthday_event(pet):
     """Создает или обновляет события дня рождения для питомца"""
