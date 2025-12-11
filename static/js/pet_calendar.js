@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <button type="submit" class="btn">🗑 Удалить</button>
                                     <label for="id_delete_all">
                                         <input type="checkbox" id="id_delete_all" name="delete_all">
-                                        Удалить все события с этим названием
+                                        Удалить все события серии
                                     </label>
                                 </form>
                             </div>

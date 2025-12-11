@@ -1,5 +1,3 @@
-/* main.css */
-
 body {
     background-image: url('/static/img/fon8.jpg');
     background-size: cover;
@@ -124,7 +122,6 @@ body::before {
     cursor: pointer;
 }
 
-/* Стилизация скроллбара */
 .dashboard-section-content::-webkit-scrollbar {
     width: 6px;
 }
