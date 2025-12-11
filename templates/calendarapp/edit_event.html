@@ -10,10 +10,15 @@
   <script src="{% static 'js/event_form.js' %}"></script>
 {% endblock %}
 
+
+
 {% block content %}
+
 <h1>Редактировать событие для {{ event.pet.name }}</h1>
 {% if error %}
-  <div class="alert alert-danger">{{ error }}</div>
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
 {% endif %}
 
 <form method="post">

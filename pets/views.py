@@ -1,3 +1,4 @@
+from logging import error
 import uuid
 from venv import logger
 from django.shortcuts import render, redirect, get_object_or_404
@@ -131,7 +132,11 @@ def pet_detail(request, pet_id):
         return redirect('pets:list')
 
     tab = request.GET.get('tab', 'info')
-    context = {'pet': pet, 'tab': tab}
+    
+    # Получаем ошибку из сессии и сразу удаляем ее
+    error = request.session.pop('calendar_error', None)
+    
+    context = {'pet': pet, 'tab': tab, 'error': error}
 
     if tab == 'info':
         birthday_today = False
@@ -161,7 +166,7 @@ def pet_detail(request, pet_id):
         today = date.today()
         events = Event.objects.filter(pet=pet).order_by('date', 'time')
         context['events'] = events
-
+        
     return render(request, 'pets/pet_detail.html', context)
 
 @login_required
