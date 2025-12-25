@@ -60,7 +60,8 @@ def pet_add(request):
                 breed=breed,
                 gender=gender,
                 photo=photo,
-                features=features
+                features=features,
+                creator=request.user
             )
             pet.owners.add(request.user)
             create_or_update_birthday_event(pet)
