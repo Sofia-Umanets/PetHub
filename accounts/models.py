@@ -6,6 +6,11 @@ import uuid
 import os
 from django.templatetags.static import static
 
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+from django.core.files.storage import default_storage
+
+
 class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     avatar = models.ImageField(
@@ -43,14 +48,13 @@ class CustomUser(AbstractUser):
         except:
             pass
         return static('img/image.webp')
-
+    
     def __str__(self):
         return self.username
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-
 
 
 class PetInvite(models.Model):
@@ -62,7 +66,6 @@ class PetInvite(models.Model):
 
     def __str__(self):
         return f"Приглашение к {self.pet.name}"
-    
 
 
 class UserNotification(models.Model):
@@ -73,3 +76,19 @@ class UserNotification(models.Model):
 
     def __str__(self):
         return f"Уведомление для {self.user.username}"
+
+
+
+@receiver(pre_save, sender=CustomUser)
+def delete_old_avatar(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    
+    try:
+        old_instance = CustomUser.objects.get(pk=instance.pk)
+    except CustomUser.DoesNotExist:
+        return
+    
+    if old_instance.avatar and old_instance.avatar != instance.avatar:
+        if default_storage.exists(old_instance.avatar.name):
+            default_storage.delete(old_instance.avatar.name)

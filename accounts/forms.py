@@ -73,15 +73,3 @@ class UserEditForm(forms.ModelForm):
                 raise forms.ValidationError("Введите корректный номер телефона")
         return phone
 
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        
-        if 'avatar' in self.changed_data:
-            if user.avatar: 
-                user.avatar.delete(save=False)
-            user.avatar = self.cleaned_data['avatar']
-        
-        if commit:
-            user.save()
-        
-        return user
