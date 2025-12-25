@@ -555,8 +555,13 @@ def _handle_regular_event_edit(
         return render(request, 'calendarapp/edit_event.html', context)
     
     if event_data.is_yearly and event_data.date.month == 2 and event_data.date.day == 29:
-        context['error'] = "29 февраля не может быть установлено для ежегодного события."
-        return render(request, 'calendarapp/edit_event.html', context)
+        # Проверяем, является ли год високосным
+        try:
+            test_date = date(event_data.date.year, 2, 29)
+        except ValueError:
+            # Год не високосный, событие будет сохранено как 28 февраля
+            messages.info(request, 
+                        "29 февраля скорректировано на 28 февраля, так как год не является високосным.")
     
     with transaction.atomic():
         if apply_to_all and event.is_yearly:

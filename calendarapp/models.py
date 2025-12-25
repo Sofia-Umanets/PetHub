@@ -1,3 +1,4 @@
+from datetime import date
 from django.utils import timezone
 import uuid
 from django.db import models
@@ -34,10 +35,54 @@ class Event(models.Model):
     is_event_passed = models.BooleanField(default=False, verbose_name="Событие прошло")
 
     def save(self, *args, **kwargs):
+        from .views import EventService
+        
+        # Сохраняем исходную дату для проверки
+        original_date = self.date
+        
+        # Обрабатываем корректировку для ежегодных событий
         if self.is_yearly:
-            if self.date < timezone.now().date():
-                self.date = timezone.now().replace(month=self.date.month, day=self.date.day)
+            event_date = self.date
+            if hasattr(event_date, 'date'):
+                event_date = event_date.date()
+            
+            current_date = timezone.now().date()
+            
+            # Если дата в прошлом, корректируем ее на текущий/следующий год
+            if event_date < current_date:
+                # Определяем год для новой даты
+                target_year = current_date.year
+                
+                # Если месяц и день - 29 февраля
+                if event_date.month == 2 and event_date.day == 29:
+                    # Проверяем, является ли текущий год високосным
+                    try:
+                        # Пробуем создать 29 февраля в текущем году
+                        new_date = date(target_year, 2, 29)
+                        # Если создалось успешно, год високосный
+                        self.date = new_date
+                    except ValueError:
+                        # Если не високосный, используем 28 февраля
+                        self.date = date(target_year, 2, 28)
+                else:
+                    # Для обычных дат используем безопасный метод
+                    new_date = EventService.get_safe_date(
+                        target_year, event_date.month, event_date.day
+                    )
+                    self.date = new_date
+                
                 self.is_event_passed = True
+        
+        # Для НЕ ежегодных событий также проверяем 29 февраля
+        elif not self.is_yearly and self.date.month == 2 and self.date.day == 29:
+            try:
+                # Проверяем, валидна ли дата (високосный год)
+                test_date = date(self.date.year, 2, 29)
+                # Если не было исключения, дата валидна
+            except ValueError:
+                # Если год не високосный, корректируем на 28 февраля
+                self.date = date(self.date.year, 2, 28)
+        
         super().save(*args, **kwargs)
 
 
